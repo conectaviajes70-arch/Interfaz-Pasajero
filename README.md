@@ -1,1 +1,113 @@
-# Interfaz-Pasajero
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Conecta Usuario</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #05070d;
+  color: white;
+}
+
+/* MAPA MITAD SUPERIOR */
+#map {
+  width: 100%;
+  height: 50vh;
+}
+
+/* PANEL INFERIOR */
+.panel {
+  height: 50vh;
+  background: rgba(15,15,25,0.95);
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
+  padding: 20px;
+  box-shadow: 0 -5px 25px #00cfff;
+}
+
+/* INPUTS */
+.input {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 15px;
+  border: none;
+  background: rgba(20,20,30,0.8);
+  color: white;
+  font-size: 16px;
+  outline: none;
+  box-shadow: 0 0 10px #00cfff inset;
+}
+
+/* BOTÓN */
+.btn {
+  width: 100%;
+  padding: 18px;
+  border-radius: 30px;
+  border: none;
+  background: linear-gradient(135deg, #00cfff, #0066ff);
+  color: white;
+  font-size: 18px;
+  box-shadow: 0 0 20px #00cfff;
+}
+
+/* TARIFA */
+.tarifa {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 20px;
+  color: #00cfff;
+}
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div class="panel">
+  <input class="input" id="origen" placeholder="¿Dónde estás?">
+  <input class="input" id="destino" placeholder="¿A dónde vas?">
+
+  <button class="btn" onclick="cotizar()">Calcular viaje</button>
+
+  <div class="tarifa" id="resultado"></div>
+</div>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+
+<script>
+mapboxgl.accessToken = 'TU_TOKEN_AQUI';
+
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/navigation-night-v1',
+  center: [-99.1332, 19.4326],
+  zoom: 12
+});
+
+// SIMULADOR DE TARIFA (por ahora)
+function cotizar() {
+  const origen = document.getElementById("origen").value;
+  const destino = document.getElementById("destino").value;
+
+  if (!origen || !destino) {
+    alert("Completa origen y destino");
+    return;
+  }
+
+  // simulación básica
+  let precio = Math.floor(Math.random() * 100) + 50;
+
+  document.getElementById("resultado").innerText = "Tarifa estimada: $" + precio;
+}
+</script>
+
+</body>
+</html>
