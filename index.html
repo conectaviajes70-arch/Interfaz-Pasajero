@@ -97,7 +97,7 @@ const map = new mapboxgl.Map({
   zoom: 12
 });
 
-// VARIABLES PARA GUARDAR DATOS
+// VARIABLES
 let origenCoords = null;
 let destinoCoords = null;
 
@@ -121,50 +121,23 @@ const geocoderDestino = new MapboxGeocoder({
   proximity: { longitude: -99.1332, latitude: 19.4326 }
 });
 
-  let origenCoords = null;
-let destinoCoords = null;
+// INSERTAR EN HTML
+document.getElementById("geocoderOrigen").appendChild(geocoderOrigen.onAdd(map));
+document.getElementById("geocoderDestino").appendChild(geocoderDestino.onAdd(map));
 
-// CUANDO SE SELECCIONA ORIGEN
+// EVENTOS (SOLO UNA VEZ)
 geocoderOrigen.on("result", e => {
   origenCoords = e.result.center;
   calcularRuta();
 });
 
-// CUANDO SE SELECCIONA DESTINO
 geocoderDestino.on("result", e => {
   destinoCoords = e.result.center;
   calcularRuta();
 });
 
-// INSERTAR
-document.getElementById("geocoderOrigen").appendChild(geocoderOrigen.onAdd(map));
-document.getElementById("geocoderDestino").appendChild(geocoderDestino.onAdd(map));
-
-// GUARDAR UBICACIONES
-geocoderOrigen.on('result', e => {
-  origenCoords = e.result.center;
-});
-
-geocoderDestino.on('result', e => {
-  destinoCoords = e.result.center;
-});
-
-// FUNCIÓN COTIZAR
-function cotizar() {
-
-  if (!origenCoords || !destinoCoords) {
-    alert("Selecciona origen y destino");
-    return;
-  }
-
-  // cálculo simple por ahora
-  let precio = Math.floor(Math.random() * 100) + 50;
-
-  document.getElementById("resultado").innerText =
-    "Tarifa estimada: $" + precio;
-}
-
-  async function calcularRuta() {
+// FUNCIÓN RUTA
+async function calcularRuta() {
   if (!origenCoords || !destinoCoords) return;
 
   const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${origenCoords[0]},${origenCoords[1]};${destinoCoords[0]},${destinoCoords[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
@@ -176,7 +149,6 @@ function cotizar() {
   const distancia = (ruta.distance / 1000).toFixed(2);
   const duracion = (ruta.duration / 60).toFixed(0);
 
-  // MOSTRAR EN UI
   document.getElementById("resultado").innerText =
     `Distancia: ${distancia} km | Tiempo: ${duracion} min`;
 
@@ -204,13 +176,19 @@ function cotizar() {
     });
   }
 
-  // AJUSTAR VISTA
   const bounds = new mapboxgl.LngLatBounds();
   bounds.extend(origenCoords);
   bounds.extend(destinoCoords);
   map.fitBounds(bounds, { padding: 50 });
 }
-</script>
 
-</body>
-</html>
+// BOTÓN (opcional)
+function cotizar() {
+  if (!origenCoords || !destinoCoords) {
+    alert("Selecciona origen y destino");
+    return;
+  }
+
+  alert("Ruta ya calculada arriba 👆");
+}
+</script>
