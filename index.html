@@ -163,6 +163,53 @@ function cotizar() {
   document.getElementById("resultado").innerText =
     "Tarifa estimada: $" + precio;
 }
+
+  async function calcularRuta() {
+  if (!origenCoords || !destinoCoords) return;
+
+  const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${origenCoords[0]},${origenCoords[1]};${destinoCoords[0]},${destinoCoords[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  const ruta = data.routes[0];
+  const distancia = (ruta.distance / 1000).toFixed(2);
+  const duracion = (ruta.duration / 60).toFixed(0);
+
+  // MOSTRAR EN UI
+  document.getElementById("resultado").innerText =
+    `Distancia: ${distancia} km | Tiempo: ${duracion} min`;
+
+  // DIBUJAR RUTA
+  if (map.getSource("ruta")) {
+    map.getSource("ruta").setData(ruta.geometry);
+  } else {
+    map.addSource("ruta", {
+      type: "geojson",
+      data: ruta.geometry
+    });
+
+    map.addLayer({
+      id: "ruta",
+      type: "line",
+      source: "ruta",
+      layout: {
+        "line-join": "round",
+        "line-cap": "round"
+      },
+      paint: {
+        "line-color": "#00cfff",
+        "line-width": 5
+      }
+    });
+  }
+
+  // AJUSTAR VISTA
+  const bounds = new mapboxgl.LngLatBounds();
+  bounds.extend(origenCoords);
+  bounds.extend(destinoCoords);
+  map.fitBounds(bounds, { padding: 50 });
+}
 </script>
 
 </body>
