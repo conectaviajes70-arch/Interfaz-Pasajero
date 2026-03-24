@@ -76,6 +76,9 @@ body {
 <div id="map"></div>
 
 <div class="panel">
+  <button onclick="usarMiUbicacion()" style="width:100%;padding:10px;margin-bottom:10px;border-radius:10px;background:#00cfff;border:none;">
+Usar mi ubicación 📍
+</button>
   <div id="geocoderOrigen"></div>
   <div id="geocoderDestino"></div>
 
@@ -228,5 +231,19 @@ function cotizar() {
 
 function cancelarViaje() {
   document.getElementById("resultado").innerHTML = "";
+}
+
+  function usarMiUbicacion() {
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lng = pos.coords.longitude;
+    const lat = pos.coords.latitude;
+
+    origenCoords = [lng, lat];
+
+    map.flyTo({
+      center: [lng, lat],
+      zoom: 15
+    });
+  });
 }
 </script>
