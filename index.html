@@ -97,6 +97,16 @@ const map = new mapboxgl.Map({
   zoom: 12
 });
 
+  navigator.geolocation.getCurrentPosition(pos => {
+  const lng = pos.coords.longitude;
+  const lat = pos.coords.latitude;
+
+  map.flyTo({
+    center: [lng, lat],
+    zoom: 14
+  });
+});
+
 // VARIABLES
 let origenCoords = null;
 let destinoCoords = null;
