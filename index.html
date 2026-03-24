@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
- <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" rel="stylesheet">
+<link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" rel="stylesheet">
 
 <style>
 body {
@@ -16,13 +16,11 @@ body {
   color: white;
 }
 
-/* MAPA MITAD SUPERIOR */
 #map {
   width: 100%;
   height: 50vh;
 }
 
-/* PANEL INFERIOR */
 .panel {
   height: 50vh;
   background: rgba(15,15,25,0.95);
@@ -32,21 +30,6 @@ body {
   box-shadow: 0 -5px 25px #00cfff;
 }
 
-/* INPUTS */
-.input {
-  width: 100%;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 15px;
-  border: none;
-  background: rgba(20,20,30,0.8);
-  color: white;
-  font-size: 16px;
-  outline: none;
-  box-shadow: 0 0 10px #00cfff inset;
-}
-
-/* BOTÓN */
 .btn {
   width: 100%;
   padding: 18px;
@@ -58,7 +41,6 @@ body {
   box-shadow: 0 0 20px #00cfff;
 }
 
-/* TARIFA */
 .tarifa {
   margin-top: 15px;
   text-align: center;
@@ -66,16 +48,17 @@ body {
   color: #00cfff;
 }
 
- .mapboxgl-ctrl-geocoder {
+.mapboxgl-ctrl-geocoder {
   width: 100%;
+  margin-bottom: 15px;
   border-radius: 15px;
   background: rgba(20,20,30,0.8);
-  color: white;
   box-shadow: 0 0 10px #00cfff inset;
 }
 
 .mapboxgl-ctrl-geocoder input {
   color: white;
+  background: transparent;
 }
 </style>
 </head>
@@ -85,20 +68,20 @@ body {
 <div id="map"></div>
 
 <div class="panel">
- <div id="geocoderOrigen"></div>
-<div id="geocoderDestino"></div>
- 
+  <div id="geocoderOrigen"></div>
+  <div id="geocoderDestino"></div>
+
   <button class="btn" onclick="cotizar()">Calcular viaje</button>
 
   <div class="tarifa" id="resultado"></div>
 </div>
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-
- <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" rel="stylesheet"> 
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
 
 <script>
-mapboxgl.accessToken = 'pk.eyJ1IjoiMzkxODM2IiwiYSI6ImNtbXl4dWZoNzAyamwycm9pZHBoYjNpNzEifQ.ryQd-8yPv1gX6BkNsToW_A';
+mapboxgl.accessToken = 'pk.eyJ1IjoiMzkxODM2IiwiYSI6ImNtbXl4dWZoNzAyamwycm9pZHBoYjNpNzEifQ.ryQd-8yPv1gX6BkNsToW_A
+';
 
 const map = new mapboxgl.Map({
   container: 'map',
@@ -107,7 +90,11 @@ const map = new mapboxgl.Map({
   zoom: 12
 });
 
- // AUTOCOMPLETADO ORIGEN
+// VARIABLES PARA GUARDAR DATOS
+let origenCoords = null;
+let destinoCoords = null;
+
+// GEOCODER ORIGEN
 const geocoderOrigen = new MapboxGeocoder({
   accessToken: mapboxgl.accessToken,
   placeholder: "¿Dónde estás?",
@@ -115,7 +102,7 @@ const geocoderOrigen = new MapboxGeocoder({
   marker: false
 });
 
-// AUTOCOMPLETADO DESTINO
+// GEOCODER DESTINO
 const geocoderDestino = new MapboxGeocoder({
   accessToken: mapboxgl.accessToken,
   placeholder: "¿A dónde vas?",
@@ -123,24 +110,32 @@ const geocoderDestino = new MapboxGeocoder({
   marker: false
 });
 
-// INSERTAR EN HTML
+// INSERTAR
 document.getElementById("geocoderOrigen").appendChild(geocoderOrigen.onAdd(map));
 document.getElementById("geocoderDestino").appendChild(geocoderDestino.onAdd(map));
 
-// SIMULADOR DE TARIFA (por ahora)
-function cotizar() {
-  const origen = document.getElementById("origen").value;
-  const destino = document.getElementById("destino").value;
+// GUARDAR UBICACIONES
+geocoderOrigen.on('result', e => {
+  origenCoords = e.result.center;
+});
 
-  if (!origen || !destino) {
-    alert("Completa origen y destino");
+geocoderDestino.on('result', e => {
+  destinoCoords = e.result.center;
+});
+
+// FUNCIÓN COTIZAR
+function cotizar() {
+
+  if (!origenCoords || !destinoCoords) {
+    alert("Selecciona origen y destino");
     return;
   }
 
-  // simulación básica
+  // cálculo simple por ahora
   let precio = Math.floor(Math.random() * 100) + 50;
 
-  document.getElementById("resultado").innerText = "Tarifa estimada: $" + precio;
+  document.getElementById("resultado").innerText =
+    "Tarifa estimada: $" + precio;
 }
 </script>
 
