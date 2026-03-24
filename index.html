@@ -106,15 +106,19 @@ const geocoderOrigen = new MapboxGeocoder({
   accessToken: mapboxgl.accessToken,
   placeholder: "¿Dónde estás?",
   mapboxgl: mapboxgl,
-  marker: false
+  marker: false,
+  countries: "mx",
+  proximity: { longitude: -99.1332, latitude: 19.4326 }
 });
 
 // GEOCODER DESTINO
-const geocoderDestino = new MapboxGeocoder({
+const geocoderOrigen = new MapboxGeocoder({
   accessToken: mapboxgl.accessToken,
-  placeholder: "¿A dónde vas?",
+  placeholder: "¿Dónde estás?",
   mapboxgl: mapboxgl,
-  marker: false
+  marker: false,
+  countries: "mx",
+  proximity: { longitude: -99.1332, latitude: 19.4326 }
 });
 
 // INSERTAR
