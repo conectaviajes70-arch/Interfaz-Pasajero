@@ -66,6 +66,18 @@ body {
   font-size: 20px;
   color: #00cfff;
 }
+
+ .mapboxgl-ctrl-geocoder {
+  width: 100%;
+  border-radius: 15px;
+  background: rgba(20,20,30,0.8);
+  color: white;
+  box-shadow: 0 0 10px #00cfff inset;
+}
+
+.mapboxgl-ctrl-geocoder input {
+  color: white;
+}
 </style>
 </head>
 
@@ -74,9 +86,8 @@ body {
 <div id="map"></div>
 
 <div class="panel">
-  <input class="input" id="origen" placeholder="¿Dónde estás?">
-  <input class="input" id="destino" placeholder="¿A dónde vas?">
-
+ <div id="geocoderOrigen"></div>
+<div id="geocoderDestino"></div>
   <button class="btn" onclick="cotizar()">Calcular viaje</button>
 
   <div class="tarifa" id="resultado"></div>
@@ -95,6 +106,26 @@ const map = new mapboxgl.Map({
   center: [-99.1332, 19.4326],
   zoom: 12
 });
+
+ // AUTOCOMPLETADO ORIGEN
+const geocoderOrigen = new MapboxGeocoder({
+  accessToken: mapboxgl.accessToken,
+  placeholder: "¿Dónde estás?",
+  mapboxgl: mapboxgl,
+  marker: false
+});
+
+// AUTOCOMPLETADO DESTINO
+const geocoderDestino = new MapboxGeocoder({
+  accessToken: mapboxgl.accessToken,
+  placeholder: "¿A dónde vas?",
+  mapboxgl: mapboxgl,
+  marker: false
+});
+
+// INSERTAR EN HTML
+document.getElementById("geocoderOrigen").appendChild(geocoderOrigen.onAdd(map));
+document.getElementById("geocoderDestino").appendChild(geocoderDestino.onAdd(map));
 
 // SIMULADOR DE TARIFA (por ahora)
 function cotizar() {
