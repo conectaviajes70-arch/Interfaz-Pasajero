@@ -121,6 +121,21 @@ const geocoderDestino = new MapboxGeocoder({
   proximity: { longitude: -99.1332, latitude: 19.4326 }
 });
 
+  let origenCoords = null;
+let destinoCoords = null;
+
+// CUANDO SE SELECCIONA ORIGEN
+geocoderOrigen.on("result", e => {
+  origenCoords = e.result.center;
+  calcularRuta();
+});
+
+// CUANDO SE SELECCIONA DESTINO
+geocoderDestino.on("result", e => {
+  destinoCoords = e.result.center;
+  calcularRuta();
+});
+
 // INSERTAR
 document.getElementById("geocoderOrigen").appendChild(geocoderOrigen.onAdd(map));
 document.getElementById("geocoderDestino").appendChild(geocoderDestino.onAdd(map));
