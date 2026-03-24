@@ -137,9 +137,9 @@ geocoderDestino.on("result", e => {
 });
 
 // FUNCIÓN RUTA
-  if (window.marcadorA) marcadorA.remove();
-if (window.marcadorB) marcadorB.remove();
 async function calcularRuta() {
+   if (window.marcadorA) marcadorA.remove();
+if (window.marcadorB) marcadorB.remove();
   if (!origenCoords || !destinoCoords) return;
 
   const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${origenCoords[0]},${origenCoords[1]};${destinoCoords[0]},${destinoCoords[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
@@ -151,6 +151,16 @@ async function calcularRuta() {
   const distancia = (ruta.distance / 1000).toFixed(2);
   const duracion = (ruta.duration / 60).toFixed(0);
 
+  // MARCADOR ORIGEN (A)
+marcadorA = new mapboxgl.Marker({ color: "#00ff9f" })
+  .setLngLat(origenCoords)
+  .addTo(map);
+
+// MARCADOR DESTINO (B)
+marcadorB = new mapboxgl.Marker({ color: "#ff3b3b" })
+  .setLngLat(destinoCoords)
+  .addTo(map);
+
   // cálculo simple tarifa (puedes ajustar después)
 let tarifa = Math.round((distancia * 10) + (duracion * 2));
 
@@ -161,16 +171,6 @@ Tiempo: ${duracion} min<br>
 <button onclick="confirmarViaje()" style="background:#00cfff;border:none;padding:12px 20px;border-radius:10px;margin-right:10px;">Confirmar</button>
 <button onclick="cancelarViaje()" style="background:#ff3b3b;border:none;padding:12px 20px;border-radius:10px;">Rechazar</button>
 `;
-
-  // MARCADOR ORIGEN (A)
-marcadorA = new mapboxgl.Marker({ color: "#00ff9f" })
-  .setLngLat(origenCoords)
-  .addTo(map);
-
-// MARCADOR DESTINO (B)
-marcadorB = new mapboxgl.Marker({ color: "#ff3b3b" })
-  .setLngLat(destinoCoords)
-  .addTo(map);
 
   // DIBUJAR RUTA
   if (map.getSource("ruta")) {
