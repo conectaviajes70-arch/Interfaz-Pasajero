@@ -137,6 +137,8 @@ geocoderDestino.on("result", e => {
 });
 
 // FUNCIÓN RUTA
+  if (window.marcadorA) marcadorA.remove();
+if (window.marcadorB) marcadorB.remove();
 async function calcularRuta() {
   if (!origenCoords || !destinoCoords) return;
 
