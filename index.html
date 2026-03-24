@@ -149,8 +149,16 @@ async function calcularRuta() {
   const distancia = (ruta.distance / 1000).toFixed(2);
   const duracion = (ruta.duration / 60).toFixed(0);
 
-  document.getElementById("resultado").innerText =
-    `Distancia: ${distancia} km | Tiempo: ${duracion} min`;
+  // cálculo simple tarifa (puedes ajustar después)
+let tarifa = Math.round((distancia * 10) + (duracion * 2));
+
+document.getElementById("resultado").innerHTML = `
+Tiempo: ${duracion} min<br>
+💰 Tarifa: $${tarifa}
+<br><br>
+<button onclick="confirmarViaje()" style="background:#00cfff;border:none;padding:12px 20px;border-radius:10px;margin-right:10px;">Confirmar</button>
+<button onclick="cancelarViaje()" style="background:#ff3b3b;border:none;padding:12px 20px;border-radius:10px;">Rechazar</button>
+`;
 
   // DIBUJAR RUTA
   if (map.getSource("ruta")) {
