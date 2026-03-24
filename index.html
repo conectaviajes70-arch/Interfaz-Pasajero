@@ -162,6 +162,16 @@ Tiempo: ${duracion} min<br>
 <button onclick="cancelarViaje()" style="background:#ff3b3b;border:none;padding:12px 20px;border-radius:10px;">Rechazar</button>
 `;
 
+  // MARCADOR ORIGEN (A)
+marcadorA = new mapboxgl.Marker({ color: "#00ff9f" })
+  .setLngLat(origenCoords)
+  .addTo(map);
+
+// MARCADOR DESTINO (B)
+marcadorB = new mapboxgl.Marker({ color: "#ff3b3b" })
+  .setLngLat(destinoCoords)
+  .addTo(map);
+
   // DIBUJAR RUTA
   if (map.getSource("ruta")) {
     map.getSource("ruta").setData(ruta.geometry);
