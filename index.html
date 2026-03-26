@@ -106,6 +106,9 @@ const geocoderOrigen = new MapboxGeocoder({
   mapboxgl,
   marker: false,
   countries: "mx",
+  language: "es",
+  types: "address,poi",
+  limit: 5,
   proximity: { longitude: -99.1332, latitude: 19.4326 }
 });
 
@@ -115,6 +118,9 @@ const geocoderDestino = new MapboxGeocoder({
   mapboxgl,
   marker: false,
   countries: "mx",
+  language: "es",
+  types: "address,poi",
+  limit: 5,
   proximity: { longitude: -99.1332, latitude: 19.4326 }
 });
 
