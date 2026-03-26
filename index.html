@@ -57,6 +57,27 @@ body {
 .mapboxgl-ctrl-geocoder--suggestions {
   z-index: 9999 !important;
 }
+
+/* TEXTO DENTRO DE INPUTS */
+.mapboxgl-ctrl-geocoder input {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+/* TEXTO DEL AUTOCOMPLETADO */
+.mapboxgl-ctrl-geocoder--suggestion {
+  color: #ffffff !important;
+}
+
+/* TEXTO SECUNDARIO (direcciones pequeñas) */
+.mapboxgl-ctrl-geocoder--suggestion-address {
+  color: #8ec3ff !important;
+}
+
+/* PLACEHOLDER */
+.mapboxgl-ctrl-geocoder input::placeholder {
+  color: #8ec3ff !important;
+}  
 </style>
 </head>
 
@@ -74,7 +95,7 @@ body {
 <div id="geocoderDestino"></div>
 
 <button onclick="cotizarViaje()" style="width:100%;padding:14px;border-radius:12px;background:#00ff9f;border:none;font-weight:bold;">
-💰 Cotizar viaje
+ Cotizar viaje
 </button>
 
 <div class="tarifa" id="resultado"></div>
@@ -160,7 +181,7 @@ async function cotizarViaje() {
 
   document.getElementById("resultado").innerHTML = `
   ⏱ ${Math.round(duracionMin)} min<br>
-  💵 $${tarifa}
+   $${tarifa}
   <br><br>
   <button onclick="confirmarViaje()">Confirmar</button>
   <button onclick="cancelarViaje()">Cancelar</button>
