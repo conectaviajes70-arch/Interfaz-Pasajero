@@ -11,7 +11,7 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: #05070d;
   color: white;
 }
@@ -27,6 +27,8 @@ body {
   border-radius: 25px 25px 0 0;
   padding: 20px;
   box-shadow: 0 -5px 25px #00cfff;
+  position: relative;
+  z-index: 10;
 }
 
 .tarifa {
@@ -43,15 +45,17 @@ body {
   border-radius: 15px;
   background: rgba(20,20,30,0.8);
   box-shadow: 0 0 10px #00cfff inset;
+  z-index: 9999 !important;
 }
 
-.mapboxgl-ctrl-geocoder input {
-  color: #ffffff !important;
-  background: transparent;
+.mapboxgl-ctrl-geocoder--suggestion {
+  z-index: 9999 !important;
+  background: #0f172a !important;
+  color: white;
 }
 
-.mapboxgl-ctrl-geocoder input::placeholder {
-  color: #8ec3ff !important;
+.mapboxgl-ctrl-geocoder--suggestions {
+  z-index: 9999 !important;
 }
 </style>
 </head>
@@ -69,6 +73,10 @@ body {
 <div id="geocoderOrigen"></div>
 <div id="geocoderDestino"></div>
 
+<button onclick="cotizarViaje()" style="width:100%;padding:14px;border-radius:12px;background:#00ff9f;border:none;font-weight:bold;">
+💰 Cotizar viaje
+</button>
+
 <div class="tarifa" id="resultado"></div>
 
 </div>
@@ -79,6 +87,7 @@ body {
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoiMzkxODM2IiwiYSI6ImNtbXl4dWZoNzAyamwycm9pZHBoYjNpNzEifQ.ryQd-8yPv1gX6BkNsToW_A';
 
+// MAPA
 const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/navigation-night-v1',
@@ -91,142 +100,110 @@ let origenCoords = null;
 let destinoCoords = null;
 let marcadorA, marcadorB;
 
-// UBICACIÓN AUTOMÁTICA
-navigator.geolocation.getCurrentPosition(pos => {
-  const lng = pos.coords.longitude;
-  const lat = pos.coords.latitude;
+// UBICACIÓN INICIAL MÁS RÁPIDA
+navigator.geolocation.getCurrentPosition(
+  pos => {
+    map.flyTo({
+      center: [pos.coords.longitude, pos.coords.latitude],
+      zoom: 14
+    });
+  },
+  () => {},
+  { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+);
 
-  map.flyTo({ center: [lng, lat], zoom: 14 });
-});
+// GEOCODER
+function crearGeocoder(placeholder) {
+  return new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    placeholder,
+    mapboxgl,
+    marker: false,
+    countries: "mx",
+    language: "es",
+    limit: 5
+  });
+}
 
-// GEOCODERS
-const geocoderOrigen = new MapboxGeocoder({
-  accessToken: mapboxgl.accessToken,
-  placeholder: "¿Dónde estás?",
-  mapboxgl,
-  marker: false,
-  countries: "mx",
-  language: "es",
-  types: "address,poi",
-  limit: 5,
-  proximity: { longitude: -99.1332, latitude: 19.4326 }
-});
-
-const geocoderDestino = new MapboxGeocoder({
-  accessToken: mapboxgl.accessToken,
-  placeholder: "¿A dónde vas?",
-  mapboxgl,
-  marker: false,
-  countries: "mx",
-  language: "es",
-  types: "address,poi",
-  limit: 5,
-  proximity: { longitude: -99.1332, latitude: 19.4326 }
-});
+const geocoderOrigen = crearGeocoder("¿Dónde estás?");
+const geocoderDestino = crearGeocoder("¿A dónde vas?");
 
 document.getElementById("geocoderOrigen").appendChild(geocoderOrigen.onAdd(map));
 document.getElementById("geocoderDestino").appendChild(geocoderDestino.onAdd(map));
 
-// EVENTOS
+// EVENTOS (YA NO CALCULA AUTOMÁTICO)
 geocoderOrigen.on("result", e => {
   origenCoords = e.result.center;
-  calcularRuta();
 });
 
 geocoderDestino.on("result", e => {
   destinoCoords = e.result.center;
-  calcularRuta();
 });
 
-// FUNCIÓN RUTA
-async function calcularRuta() {
-  if (!origenCoords || !destinoCoords) return;
-
-  if (marcadorA) marcadorA.remove();
-  if (marcadorB) marcadorB.remove();
+// BOTÓN COTIZAR (CONTROL TOTAL 💸)
+async function cotizarViaje() {
+  if (!origenCoords || !destinoCoords) {
+    alert("Selecciona origen y destino");
+    return;
+  }
 
   const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${origenCoords[0]},${origenCoords[1]};${destinoCoords[0]},${destinoCoords[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
 
   const res = await fetch(url);
   const data = await res.json();
-
   const ruta = data.routes[0];
 
   const distanciaKm = ruta.distance / 1000;
   const duracionMin = ruta.duration / 60;
 
-  // TARIFA REAL
-  let tarifa = Math.round(
-    25 + (distanciaKm * 7) + (duracionMin * 2.5)
-  );
+  let tarifa = Math.round(25 + (distanciaKm * 7) + (duracionMin * 2.5));
 
   document.getElementById("resultado").innerHTML = `
   ⏱ ${Math.round(duracionMin)} min<br>
-   $${tarifa}
+  💵 $${tarifa}
   <br><br>
-  <button onclick="confirmarViaje()" style="background:#00cfff;border:none;padding:12px 20px;border-radius:10px;margin-right:10px;">Confirmar</button>
-  <button onclick="cancelarViaje()" style="background:#ff3b3b;border:none;padding:12px 20px;border-radius:10px;">Rechazar</button>
+  <button onclick="confirmarViaje()">Confirmar</button>
+  <button onclick="cancelarViaje()">Cancelar</button>
   `;
 
   // MARCADORES
-  marcadorA = new mapboxgl.Marker({ color: "#00ff9f" })
-    .setLngLat(origenCoords)
-    .addTo(map);
+  if (marcadorA) marcadorA.remove();
+  if (marcadorB) marcadorB.remove();
 
-  marcadorB = new mapboxgl.Marker({ color: "#ff3b3b" })
-    .setLngLat(destinoCoords)
-    .addTo(map);
-
-  // RUTA
-  if (map.getSource("ruta")) {
-    map.getSource("ruta").setData(ruta.geometry);
-  } else {
-    map.addSource("ruta", {
-      type: "geojson",
-      data: ruta.geometry
-    });
-
-    map.addLayer({
-      id: "ruta",
-      type: "line",
-      source: "ruta",
-      paint: {
-        "line-color": "#00cfff",
-        "line-width": 5
-      }
-    });
-  }
-
-  const bounds = new mapboxgl.LngLatBounds();
-  bounds.extend(origenCoords);
-  bounds.extend(destinoCoords);
-  map.fitBounds(bounds, { padding: 50 });
+  marcadorA = new mapboxgl.Marker().setLngLat(origenCoords).addTo(map);
+  marcadorB = new mapboxgl.Marker({ color: "red" }).setLngLat(destinoCoords).addTo(map);
 }
 
-// BOTONES
+// UBICACIÓN MEJORADA 🔥
+function usarMiUbicacion() {
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lng = pos.coords.longitude;
+      const lat = pos.coords.latitude;
+
+      origenCoords = [lng, lat];
+
+      map.flyTo({ center: [lng, lat], zoom: 15 });
+
+      geocoderOrigen.setInput("Mi ubicación 📍");
+    },
+    err => {
+      alert("No se pudo obtener ubicación");
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 5000,
+      maximumAge: 60000
+    }
+  );
+}
+
 function confirmarViaje() {
   alert("Viaje confirmado 🚗");
 }
 
 function cancelarViaje() {
   document.getElementById("resultado").innerHTML = "";
-}
-
-// BOTÓN UBICACIÓN (ARREGLADO 🔥)
-function usarMiUbicacion() {
-  navigator.geolocation.getCurrentPosition(pos => {
-    const lng = pos.coords.longitude;
-    const lat = pos.coords.latitude;
-
-    origenCoords = [lng, lat];
-
-    map.flyTo({ center: [lng, lat], zoom: 15 });
-
-    // 👉 ESTO ES LO QUE FALTABA
-    geocoderOrigen.setInput("Tu ubicación actual");
-
-    calcularRuta();
-  });
 }
 </script>
 
